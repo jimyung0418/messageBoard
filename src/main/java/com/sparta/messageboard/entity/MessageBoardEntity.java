@@ -1,6 +1,7 @@
 package com.sparta.messageboard.entity;
 
 import com.sparta.messageboard.dto.MessageAddRequestDto;
+import com.sparta.messageboard.dto.MessageUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,6 +27,12 @@ public class MessageBoardEntity extends TimeEntity {
         this.title = requestDto.getTitle();
         this.username = requestDto.getUsername();
         this.password = requestDto.getPassword();
+        this.contents = requestDto.getContent();
+    }
+
+    public void update(MessageUpdateRequestDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.username = requestDto.getUsername();
         this.contents = requestDto.getContent();
     }
 }

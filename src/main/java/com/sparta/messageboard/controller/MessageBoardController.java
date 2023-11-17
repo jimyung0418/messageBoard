@@ -2,6 +2,7 @@ package com.sparta.messageboard.controller;
 
 import com.sparta.messageboard.dto.MessageAddRequestDto;
 import com.sparta.messageboard.dto.MessageBoardResponseDto;
+import com.sparta.messageboard.dto.MessageUpdateRequestDto;
 import com.sparta.messageboard.service.MessageBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,4 +40,16 @@ public class MessageBoardController {
     public List<MessageBoardResponseDto> getMessages() {
         return messageBoardService.getMessages();
     }
+
+    // 게시글 수정
+    @PatchMapping("/{id}")
+    public MessageBoardResponseDto updateMessage (
+            @PathVariable Long id,
+            @RequestBody MessageUpdateRequestDto requestDto
+    ) {
+        return messageBoardService.updateMessage(id, requestDto);
+    }
+
+
+
 }
