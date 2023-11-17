@@ -7,7 +7,10 @@ import com.sparta.messageboard.repository.MessageBoardJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +30,11 @@ public class MessageBoardService {
                 .orElseThrow(() -> new NullPointerException("해당 게시글을 찾을 수 없습니다."));
 
         return new MessageBoardResponseDto(messageBoardEntity);
+    }
+
+    public List<MessageBoardResponseDto> getMessages() {
+        return messageBoardJpaRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(MessageBoardResponseDto::new)
+                .collect(Collectors.toList());
     }
 }
