@@ -50,6 +50,13 @@ public class MessageBoardController {
         return messageBoardService.updateMessage(id, requestDto);
     }
 
-
-
+    // 게시글 삭제
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}")
+    public void deleteMessage (
+            @PathVariable Long id,
+            @RequestHeader("password") String password
+    ) {
+        messageBoardService.deleteMessage(id, password);
+    }
 }

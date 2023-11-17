@@ -35,4 +35,8 @@ public class MessageBoardEntity extends TimeEntity {
         this.username = requestDto.getUsername();
         this.contents = requestDto.getContent();
     }
+
+    public boolean passwordMatches(String inputPassword) {
+        return this.password.equals(inputPassword);
+    }
 }

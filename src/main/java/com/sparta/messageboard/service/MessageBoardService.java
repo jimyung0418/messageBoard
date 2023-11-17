@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +27,6 @@ public class MessageBoardService {
 
     public MessageBoardResponseDto getMessage(Long id) {
         MessageBoardEntity messageBoardEntity = getMessageBoardEntity(id);
-
         return new MessageBoardResponseDto(messageBoardEntity);
     }
 
@@ -42,17 +39,25 @@ public class MessageBoardService {
     @Transactional
     public MessageBoardResponseDto updateMessage(Long id, MessageUpdateRequestDto requestDto) {
         MessageBoardEntity messageBoardEntity = getMessageBoardEntity(id);
-
-        if (!messageBoardEntity.getPassword().equals(requestDto.getPassword())) {
-            throw new NullPointerException("비밀번호가 일치하지 않습니다.");
-        }
+        verifyPassword(messageBoardEntity, requestDto.getPassword());
         messageBoardEntity.update(requestDto);
-
         return new MessageBoardResponseDto(messageBoardEntity);
+    }
+
+    public void deleteMessage(Long id, String password) {
+        MessageBoardEntity messageBoardEntity = getMessageBoardEntity(id);
+        verifyPassword(messageBoardEntity, password);
+        messageBoardJpaRepository.delete(messageBoardEntity);
     }
 
     private MessageBoardEntity getMessageBoardEntity(Long id) {
         return messageBoardJpaRepository.findById(id)
                 .orElseThrow(() -> new NullPointerException("해당 게시글을 찾을 수 없습니다."));
+    }
+
+    private static void verifyPassword(MessageBoardEntity messageBoardEntity, String password) {
+        if (!messageBoardEntity.passwordMatches(password)) {
+            throw new NullPointerException("비밀번호가 일치하지 않습니다.");
+        }
     }
 }
