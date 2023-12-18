@@ -1,11 +1,13 @@
 package com.sparta.messageboard.controller;
 
-import com.sparta.messageboard.dto.MessageAddRequestDto;
-import com.sparta.messageboard.dto.MessageBoardResponseDto;
+import com.sparta.messageboard.dto.CommonResponseDto;
+import com.sparta.messageboard.dto.MessageRequestDto;
+import com.sparta.messageboard.dto.MessageResponseDto;
 import com.sparta.messageboard.dto.MessageUpdateRequestDto;
 import com.sparta.messageboard.service.MessageBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,17 +21,17 @@ public class MessageBoardController {
 
     // 게시글 저장
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public MessageBoardResponseDto addMessage(
-            @RequestBody MessageAddRequestDto requestDto
-    ) {
-        MessageBoardResponseDto messageBoardResponseDto = messageBoardService.addMessage(requestDto);
-        return messageBoardResponseDto;
+    public ResponseEntity<CommonResponseDto> createMessage(@RequestBody MessageRequestDto messageRequestDto) {
+        try {
+            return ResponseEntity.ok().body(messageBoardService.createMessage(messageRequestDto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new CommonResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
     }
 
     // 게시글 조회
     @GetMapping("/{id}")
-    public MessageBoardResponseDto getMessage(
+    public MessageResponseDto getMessage(
             @PathVariable Long id
     ) {
         return messageBoardService.getMessage(id);
@@ -37,13 +39,13 @@ public class MessageBoardController {
 
     // 게시글 목록 조회
     @GetMapping
-    public List<MessageBoardResponseDto> getMessages() {
+    public List<MessageResponseDto> getMessages() {
         return messageBoardService.getMessages();
     }
 
     // 게시글 수정
     @PatchMapping("/{id}")
-    public MessageBoardResponseDto updateMessage (
+    public MessageResponseDto updateMessage (
             @PathVariable Long id,
             @RequestBody MessageUpdateRequestDto requestDto
     ) {

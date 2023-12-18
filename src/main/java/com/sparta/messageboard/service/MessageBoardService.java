@@ -1,10 +1,10 @@
 package com.sparta.messageboard.service;
 
-import com.sparta.messageboard.dto.MessageAddRequestDto;
-import com.sparta.messageboard.dto.MessageBoardResponseDto;
+import com.sparta.messageboard.dto.MessageRequestDto;
+import com.sparta.messageboard.dto.MessageResponseDto;
 import com.sparta.messageboard.dto.MessageUpdateRequestDto;
-import com.sparta.messageboard.entity.MessageBoardEntity;
-import com.sparta.messageboard.repository.MessageBoardJpaRepository;
+import com.sparta.messageboard.entity.Message;
+import com.sparta.messageboard.repository.MessageBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,46 +16,57 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MessageBoardService {
 
-    private final MessageBoardJpaRepository messageBoardJpaRepository;
+    private final MessageBoardRepository messageBoardRepository;
 
-    public MessageBoardResponseDto addMessage(MessageAddRequestDto requestDto) {
-        // Dto -> Entity
-        MessageBoardEntity messageBoardEntity = new MessageBoardEntity(requestDto);
-        MessageBoardEntity saveMessage = messageBoardJpaRepository.save(messageBoardEntity);
-        return new MessageBoardResponseDto(saveMessage);
+    public MessageResponseDto createMessage(MessageRequestDto messageRequestDto) {
+
+        if (messageRequestDto.getTitle() == null) {
+            throw new IllegalArgumentException("제목을 입력하세요.");
+        } else if (messageRequestDto.getUsername() == null) {
+            throw new IllegalArgumentException("작성자명을 입력하세요.");
+        } else if (messageRequestDto.getPassword() == null) {
+            throw new IllegalArgumentException("비밀번호를 입력하세요.");
+        } else if (messageRequestDto.getContent() == null) {
+            throw new IllegalArgumentException("내용을 입력하세요.");
+        }
+
+        Message message = new Message(messageRequestDto);
+        Message createdMessage =  messageBoardRepository.save(message);
+
+        return new MessageResponseDto(createdMessage);
     }
 
-    public MessageBoardResponseDto getMessage(Long id) {
-        MessageBoardEntity messageBoardEntity = getMessageBoardEntity(id);
-        return new MessageBoardResponseDto(messageBoardEntity);
+    public MessageResponseDto getMessage(Long id) {
+        Message messageBoardEntity = getMessageBoardEntity(id);
+        return new MessageResponseDto(messageBoardEntity);
     }
 
-    public List<MessageBoardResponseDto> getMessages() {
-        return messageBoardJpaRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(MessageBoardResponseDto::new)
+    public List<MessageResponseDto> getMessages() {
+        return messageBoardRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(MessageResponseDto::new)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public MessageBoardResponseDto updateMessage(Long id, MessageUpdateRequestDto requestDto) {
-        MessageBoardEntity messageBoardEntity = getMessageBoardEntity(id);
+    public MessageResponseDto updateMessage(Long id, MessageUpdateRequestDto requestDto) {
+        Message messageBoardEntity = getMessageBoardEntity(id);
         verifyPassword(messageBoardEntity, requestDto.getPassword());
         messageBoardEntity.update(requestDto);
-        return new MessageBoardResponseDto(messageBoardEntity);
+        return new MessageResponseDto(messageBoardEntity);
     }
 
     public void deleteMessage(Long id, String password) {
-        MessageBoardEntity messageBoardEntity = getMessageBoardEntity(id);
+        Message messageBoardEntity = getMessageBoardEntity(id);
         verifyPassword(messageBoardEntity, password);
-        messageBoardJpaRepository.delete(messageBoardEntity);
+        messageBoardRepository.delete(messageBoardEntity);
     }
 
-    private MessageBoardEntity getMessageBoardEntity(Long id) {
-        return messageBoardJpaRepository.findById(id)
+    private Message getMessageBoardEntity(Long id) {
+        return messageBoardRepository.findById(id)
                 .orElseThrow(() -> new NullPointerException("해당 게시글을 찾을 수 없습니다."));
     }
 
-    private static void verifyPassword(MessageBoardEntity messageBoardEntity, String password) {
+    private static void verifyPassword(Message messageBoardEntity, String password) {
         if (!messageBoardEntity.passwordMatches(password)) {
             throw new NullPointerException("비밀번호가 일치하지 않습니다.");
         }

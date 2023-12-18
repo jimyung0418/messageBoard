@@ -3,7 +3,7 @@ package com.sparta.messageboard.dto;
 import lombok.Getter;
 
 @Getter
-public class MessageAddRequestDto {
+public class MessageRequestDto {
     private String title;
     private String username;
     private String password;
