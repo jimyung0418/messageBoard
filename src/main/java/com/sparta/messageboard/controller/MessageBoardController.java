@@ -29,12 +29,14 @@ public class MessageBoardController {
         }
     }
 
-    // 게시글 조회
+    // 게시글 단건 조회
     @GetMapping("/{id}")
-    public MessageResponseDto getMessage(
-            @PathVariable Long id
-    ) {
-        return messageBoardService.getMessage(id);
+    public ResponseEntity<CommonResponseDto> getMessage(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok().body(messageBoardService.getMessage(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new CommonResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
     }
 
     // 게시글 목록 조회
