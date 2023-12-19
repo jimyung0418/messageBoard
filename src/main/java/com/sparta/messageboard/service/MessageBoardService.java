@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,10 +43,14 @@ public class MessageBoardService {
         return new MessageResponseDto(message);
     }
 
-    public List<MessageResponseDto> getMessages() {
-        return messageBoardRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(MessageResponseDto::new)
-                .collect(Collectors.toList());
+    public List<MessageResponseDto> getMessageList() {
+        List<Message> messageList = messageBoardRepository.findAllByOrderByCreatedAtDesc();
+        List<MessageResponseDto> responseDtoList = new ArrayList<>();
+
+        for (Message message : messageList) {
+            responseDtoList.add(new MessageResponseDto(message));
+        }
+        return responseDtoList;
     }
 
     @Transactional

@@ -41,8 +41,8 @@ public class MessageBoardController {
 
     // 게시글 목록 조회
     @GetMapping
-    public List<MessageResponseDto> getMessages() {
-        return messageBoardService.getMessages();
+    public List<MessageResponseDto> getMessageList() {
+        return messageBoardService.getMessageList();
     }
 
     // 게시글 수정
