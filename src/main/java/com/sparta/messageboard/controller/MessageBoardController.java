@@ -47,11 +47,13 @@ public class MessageBoardController {
 
     // 게시글 수정
     @PatchMapping("/{id}")
-    public MessageResponseDto updateMessage (
-            @PathVariable Long id,
-            @RequestBody MessageUpdateRequestDto requestDto
-    ) {
-        return messageBoardService.updateMessage(id, requestDto);
+    public ResponseEntity<CommonResponseDto> updateMessage (@PathVariable Long id,
+                                             @RequestBody MessageUpdateRequestDto requestDto) {
+        try {
+            return ResponseEntity.ok().body(messageBoardService.updateMessage(id, requestDto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new CommonResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
     }
 
     // 게시글 삭제

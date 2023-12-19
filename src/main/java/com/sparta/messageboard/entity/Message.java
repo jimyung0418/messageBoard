@@ -35,9 +35,9 @@ public class Message extends TimeEntity {
     }
 
     public void update(MessageUpdateRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.username = requestDto.getUsername();
-        this.contents = requestDto.getContent();
+        this.title = requestDto.getTitle() == null ? this.getTitle() : requestDto.getTitle();
+        this.username = requestDto.getUsername() == null ? this.getUsername() : requestDto.getUsername();
+        this.contents = requestDto.getContent() == null ? this.getContents() : requestDto.getContent();
     }
 
     public boolean passwordMatches(String inputPassword) {

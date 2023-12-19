@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,10 +56,16 @@ public class MessageBoardService {
 
     @Transactional
     public MessageResponseDto updateMessage(Long id, MessageUpdateRequestDto requestDto) {
-        Message messageBoardEntity = getMessageBoardEntity(id);
-        verifyPassword(messageBoardEntity, requestDto.getPassword());
-        messageBoardEntity.update(requestDto);
-        return new MessageResponseDto(messageBoardEntity);
+
+        Message message = messageBoardRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+
+        if (!Objects.equals(message.getPassword(), requestDto.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        message.update(requestDto);
+        return new MessageResponseDto(message);
     }
 
     public void deleteMessage(Long id, String password) {
