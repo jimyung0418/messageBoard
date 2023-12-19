@@ -1,5 +1,6 @@
 package com.sparta.messageboard.service;
 
+import com.sparta.messageboard.dto.DeleteMessageRequestDto;
 import com.sparta.messageboard.dto.MessageRequestDto;
 import com.sparta.messageboard.dto.MessageResponseDto;
 import com.sparta.messageboard.dto.MessageUpdateRequestDto;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,32 +56,22 @@ public class MessageBoardService {
 
     @Transactional
     public MessageResponseDto updateMessage(Long id, MessageUpdateRequestDto requestDto) {
-
-        Message message = messageBoardRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
-
-        if (!Objects.equals(message.getPassword(), requestDto.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
+        Message message = checkMessageAndPassword(id, requestDto.getPassword());
         message.update(requestDto);
         return new MessageResponseDto(message);
     }
 
-    public void deleteMessage(Long id, String password) {
-        Message messageBoardEntity = getMessageBoardEntity(id);
-        verifyPassword(messageBoardEntity, password);
-        messageBoardRepository.delete(messageBoardEntity);
+    public void deleteMessage(Long id, DeleteMessageRequestDto requestDto) {
+        Message message = checkMessageAndPassword(id, requestDto.getPassword());
+        messageBoardRepository.delete(message);
     }
 
-    private Message getMessageBoardEntity(Long id) {
-        return messageBoardRepository.findById(id)
-                .orElseThrow(() -> new NullPointerException("해당 게시글을 찾을 수 없습니다."));
-    }
-
-    private static void verifyPassword(Message messageBoardEntity, String password) {
-        if (!messageBoardEntity.passwordMatches(password)) {
-            throw new NullPointerException("비밀번호가 일치하지 않습니다.");
+    private Message checkMessageAndPassword(Long id, String requestDto) {
+        Message message = messageBoardRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+        if (!Objects.equals(message.getPassword(), requestDto)) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+        return message;
     }
 }

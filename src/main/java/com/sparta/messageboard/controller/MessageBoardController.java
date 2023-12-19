@@ -1,9 +1,6 @@
 package com.sparta.messageboard.controller;
 
-import com.sparta.messageboard.dto.CommonResponseDto;
-import com.sparta.messageboard.dto.MessageRequestDto;
-import com.sparta.messageboard.dto.MessageResponseDto;
-import com.sparta.messageboard.dto.MessageUpdateRequestDto;
+import com.sparta.messageboard.dto.*;
 import com.sparta.messageboard.service.MessageBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -57,12 +54,14 @@ public class MessageBoardController {
     }
 
     // 게시글 삭제
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deleteMessage (
-            @PathVariable Long id,
-            @RequestHeader("password") String password
-    ) {
-        messageBoardService.deleteMessage(id, password);
+    public ResponseEntity<CommonResponseDto> deleteMessage (@PathVariable Long id,
+                               @RequestBody DeleteMessageRequestDto requestDto) {
+        try {
+            messageBoardService.deleteMessage(id, requestDto);
+            return ResponseEntity.ok().body(new CommonResponseDto("삭제 완료!", HttpStatus.OK.value()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new CommonResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
     }
 }
